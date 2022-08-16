@@ -44,7 +44,7 @@ export default class Dashboard extends Component {
         const startingAddedId =
           data.length > 0 ? data[data.length - 1].id + 1 : 0;
         data = [...data, { id: startingAddedId, ...added }];
-        window.alert("added");
+        //window.alert("added");
       }
       if (changed) {
         data = data.map((appointment) =>
@@ -52,11 +52,11 @@ export default class Dashboard extends Component {
             ? { ...appointment, ...changed[appointment.id] }
             : appointment
         );
-        window.alert("changed");
+        //window.alert("changed");
       }
       if (deleted !== undefined) {
         data = data.filter((appointment) => appointment.id !== deleted);
-        window.alert("deleted");
+        //window.alert("deleted");
       }
       return { data };
     });
@@ -122,7 +122,7 @@ export default class Dashboard extends Component {
           <ConfirmationDialog />
           <Appointments />
           <AppointmentTooltip showOpenButton showDeleteButton />
-          <AppointmentForm />
+          <AppointmentForm onValueChange={saveAppoinment}/>
         </Scheduler>
       </Paper>
     );
