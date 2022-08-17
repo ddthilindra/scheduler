@@ -22,21 +22,16 @@ import {
   ConfirmationDialog,
 } from "@devexpress/dx-react-scheduler-material-ui";
 
-import { appointments } from "./appointments";
-const initialState = {
-  
-};
+//import { appointments } from "./appointments";
+
 export default class Dashboard extends Component {
   constructor(props) {
     super(props);
 
-    const now = new Date();
     this.state = {
-      appointments: [],
-      data: appointments,
-      currentDate: "2018-06-27",
+      data: [],
+      currentDate: new Date(),
     };
-
 
     this.currentDateChange = (currentDate) => {
       this.setState({ currentDate });
@@ -45,33 +40,22 @@ export default class Dashboard extends Component {
   }
 
   async componentDidMount() {
-
     await axios
       .get("http://localhost:8000/leave/getAllLeaves/1")
       .then((res) => {
-        // console.log("Getting from:", res.data.data);
         if (
           res.data.code === 200 &&
           res.data.success === true &&
           res.data.data.length > 0
         ) {
-          //window.alert(`${res.data.message}`);
-          console.log(">>>>>>>>>>" + res.data.data);
-          this.setState({appointments:res.data.data})
-          //console.log("first"+this.state.appointments)
-          //setRows(JSON.parse(JSON.stringify(res.data.data)));
+          this.setState({ data: res.data.data });
         } else {
           console.log("bad request...");
         }
-        // setRows(res.data.data);
       })
       .catch((err) => console.log(err));
 
-
-    // await axios.get(`${APIURL}/EMPTopList/getAllTopList`).then((response) => {
-    //   this.setState({ TopList: response.data.data });
-    //   console.log("TopList =>", this.state.TopList);
-    // });
+    
   }
 
   commitChanges({ added, changed, deleted }) {
