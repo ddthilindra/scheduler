@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import Paper from "@mui/material/Paper";
+import axios from "axios";
+
 import {
   ViewState,
   EditingState,
@@ -35,16 +37,69 @@ export default class Dashboard extends Component {
     };
     this.commitChanges = this.commitChanges.bind(this);
   }
- 
 
   commitChanges({ added, changed, deleted }) {
     this.setState((state) => {
+      const date = require("date-and-time");
       let { data } = state;
       if (added) {
         const startingAddedId =
           data.length > 0 ? data[data.length - 1].id + 1 : 0;
         data = [...data, { id: startingAddedId, ...added }];
         //window.alert("added");
+        // console.log(">>>>>> " + added.title);
+        // console.log(">>>>>> " + added.startDate);
+        // console.log(">>>>>> " + added.endDate);
+
+        
+        
+     const strTime = date.format(added.startDate, "YYYY-MM-DD hh-mm-ss");
+     const endTime = date.format(added.endDate, "YYYY-MM-DD hh-mm-ss");
+    //  console.log(strTime)
+    //  console.log(endTime)
+
+
+        
+
+        if (added.title && added.startDate && added.endDate) {
+          // const config = {
+          //   headers: { Authorization: Admintoken },
+          // };
+          const data = {
+            userId: "1",
+            title: added.title,
+            startTime: strTime,
+            endTime: endTime,
+          };
+          axios
+            .post(`http://localhost:8000/leave/addLeave`, data)
+            .then((response) => {
+              console.log(response.data);
+
+              if (response.status == 200) {
+                window.alert(`${response.data.message}`);
+                //window.location.reload(false);
+                console.log(`${response.status}`);
+                console.log(response.data.message);
+              } else {
+                window.alert("Somthing went wrong");
+                console.log(`${response.status}`);
+                console.log(response.data.message);
+              }
+            })
+            .catch((err) => {
+              console.log("Sever error");
+              if (
+                err.response &&
+                err.response.status >= 400 &&
+                err.response.status <= 500
+              ) {
+                window.alert("Sever error");
+                console.log(err)
+              }
+            });
+        } else {
+        }
       }
       if (changed) {
         data = data.map((appointment) =>
@@ -68,7 +123,44 @@ export default class Dashboard extends Component {
       window.alert("handleCellClick");
     };
 
+    const onAppointmentAdding = (e) => {
+      // Handler of the "appointmentAdding" event
+      console.log("first ", e.traget.value);
+    };
+    const onAppointmentAdded = (e) => {
+      // Handler of the "appointmentAdded" event
+    };
     return (
+      <Paper>
+        <Scheduler data={data} height={930}>
+          <ViewState
+            currentDate={currentDate}
+            onCurrentDateChange={this.currentDateChange}
+          />
+          <EditingState onCommitChanges={this.commitChanges} />
+          <IntegratedEditing />
+
+          <WeekView startDayHour={10} endDayHour={19} />
+          <WeekView
+            name="work-week"
+            displayName="Work Week"
+            excludedDays={[0, 6]}
+            startDayHour={9}
+            endDayHour={19}
+          />
+          <MonthView />
+          <DayView startDayHour={9} endDayHour={19} />
+          <Toolbar />
+          <DateNavigator />
+          <ViewSwitcher />
+          <TodayButton />
+          <ConfirmationDialog />
+          <Appointments />
+          <AppointmentTooltip showOpenButton showDeleteButton />
+          <AppointmentForm onValueChange={saveAppoinment} />
+        </Scheduler>
+      </Paper>
+
       // <Paper>
       //   <Scheduler data={data} height={660}>
       //     <ViewState
@@ -98,34 +190,6 @@ export default class Dashboard extends Component {
       //     <AppointmentForm />
       //   </Scheduler>
       // </Paper>
-
-      <Paper>
-        <Scheduler data={data} height={660}>
-          <ViewState currentDate={currentDate} onCurrentDateChange={this.currentDateChange}/>
-          <EditingState onCommitChanges={this.commitChanges} />
-          <IntegratedEditing />
-          
-          <WeekView startDayHour={10} endDayHour={19} />
-          <WeekView
-            name="work-week"
-            displayName="Work Week"
-            excludedDays={[0, 6]}
-            startDayHour={9}
-            endDayHour={19}
-          />
-          <MonthView />
-          <DayView startDayHour={9} endDayHour={19} />
-          <Toolbar />
-          <DateNavigator />
-          <ViewSwitcher />
-          <TodayButton />
-          <ConfirmationDialog />
-          <Appointments />
-          <AppointmentTooltip showOpenButton showDeleteButton />
-          <AppointmentForm onValueChange={saveAppoinment}/>
-        </Scheduler>
-      </Paper>
     );
   }
 }
-
