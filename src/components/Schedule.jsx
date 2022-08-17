@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, useState, useEffect } from "react";
 import Paper from "@mui/material/Paper";
 import axios from "axios";
 
@@ -23,19 +23,55 @@ import {
 } from "@devexpress/dx-react-scheduler-material-ui";
 
 import { appointments } from "./appointments";
-
+const initialState = {
+  
+};
 export default class Dashboard extends Component {
   constructor(props) {
     super(props);
 
+    const now = new Date();
     this.state = {
+      appointments: [],
       data: appointments,
       currentDate: "2018-06-27",
     };
+
+
     this.currentDateChange = (currentDate) => {
       this.setState({ currentDate });
     };
     this.commitChanges = this.commitChanges.bind(this);
+  }
+
+  async componentDidMount() {
+
+    await axios
+      .get("http://localhost:8000/leave/getAllLeaves/1")
+      .then((res) => {
+        // console.log("Getting from:", res.data.data);
+        if (
+          res.data.code === 200 &&
+          res.data.success === true &&
+          res.data.data.length > 0
+        ) {
+          //window.alert(`${res.data.message}`);
+          console.log(">>>>>>>>>>" + res.data.data);
+          this.setState({appointments:res.data.data})
+          //console.log("first"+this.state.appointments)
+          //setRows(JSON.parse(JSON.stringify(res.data.data)));
+        } else {
+          console.log("bad request...");
+        }
+        // setRows(res.data.data);
+      })
+      .catch((err) => console.log(err));
+
+
+    // await axios.get(`${APIURL}/EMPTopList/getAllTopList`).then((response) => {
+    //   this.setState({ TopList: response.data.data });
+    //   console.log("TopList =>", this.state.TopList);
+    // });
   }
 
   commitChanges({ added, changed, deleted }) {
@@ -51,15 +87,10 @@ export default class Dashboard extends Component {
         // console.log(">>>>>> " + added.startDate);
         // console.log(">>>>>> " + added.endDate);
 
-        
-        
-     const strTime = date.format(added.startDate, "YYYY-MM-DD hh-mm-ss");
-     const endTime = date.format(added.endDate, "YYYY-MM-DD hh-mm-ss");
-    //  console.log(strTime)
-    //  console.log(endTime)
-
-
-        
+        const strTime = date.format(added.startDate, "YYYY-MM-DD hh-mm-ss");
+        const endTime = date.format(added.endDate, "YYYY-MM-DD hh-mm-ss");
+        //  console.log(strTime)
+        //  console.log(endTime)
 
         if (added.title && added.startDate && added.endDate) {
           // const config = {
@@ -95,7 +126,7 @@ export default class Dashboard extends Component {
                 err.response.status <= 500
               ) {
                 window.alert("Sever error");
-                console.log(err)
+                console.log(err);
               }
             });
         } else {
