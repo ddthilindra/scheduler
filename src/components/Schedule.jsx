@@ -21,7 +21,6 @@ import {
   AppointmentTooltip,
   ConfirmationDialog,
 } from "@devexpress/dx-react-scheduler-material-ui";
-
 //import { appointments } from "./appointments";
 
 export default class Dashboard extends Component {
@@ -30,7 +29,10 @@ export default class Dashboard extends Component {
 
     this.state = {
       data: [],
+      //data:appointments,
       currentDate: new Date(),
+      //"2018-06-27"
+      isSuccess: true,
     };
 
     this.currentDateChange = (currentDate) => {
@@ -48,72 +50,75 @@ export default class Dashboard extends Component {
           res.data.success === true &&
           res.data.data.length > 0
         ) {
+          //console.log(res.data)
           this.setState({ data: res.data.data });
         } else {
           console.log("bad request...");
         }
       })
       .catch((err) => console.log(err));
-
-    
   }
 
   commitChanges({ added, changed, deleted }) {
     this.setState((state) => {
       const date = require("date-and-time");
       let { data } = state;
+      this.setState((prevState) => ({
+        isSuccess: !prevState.isSuccess,
+      }));
+
       if (added) {
-        const startingAddedId =
-          data.length > 0 ? data[data.length - 1].id + 1 : 0;
-        data = [...data, { id: startingAddedId, ...added }];
-        //window.alert("added");
-        // console.log(">>>>>> " + added.title);
-        // console.log(">>>>>> " + added.startDate);
-        // console.log(">>>>>> " + added.endDate);
+        console.log("first " + this.state.isSuccess);
+        if (this.state.isSuccess == true) {
+          console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" + this.state.isSuccess);
 
-        const strTime = date.format(added.startDate, "YYYY-MM-DD hh-mm-ss");
-        const endTime = date.format(added.endDate, "YYYY-MM-DD hh-mm-ss");
-        //  console.log(strTime)
-        //  console.log(endTime)
+          const startingAddedId =
+            data.length > 0 ? data[data.length - 1].id + 1 : 0;
+          data = [...data, { id: startingAddedId, ...added }];
 
-        if (added.title && added.startDate && added.endDate) {
-          // const config = {
-          //   headers: { Authorization: Admintoken },
-          // };
-          const data = {
-            userId: "1",
-            title: added.title,
-            startTime: strTime,
-            endTime: endTime,
-          };
-          axios
-            .post(`http://localhost:8000/leave/addLeave`, data)
-            .then((response) => {
-              console.log(response.data);
+          const strTime = date.format(added.startDate, "YYYY-MM-DD hh-mm-ss");
+          const endTime = date.format(added.endDate, "YYYY-MM-DD hh-mm-ss");
 
-              if (response.status == 200) {
-                window.alert(`${response.data.message}`);
-                //window.location.reload(false);
-                console.log(`${response.status}`);
-                console.log(response.data.message);
-              } else {
-                window.alert("Somthing went wrong");
-                console.log(`${response.status}`);
-                console.log(response.data.message);
-              }
-            })
-            .catch((err) => {
-              console.log("Sever error");
-              if (
-                err.response &&
-                err.response.status >= 400 &&
-                err.response.status <= 500
-              ) {
-                window.alert("Sever error");
+          if (added.title && added.startDate && added.endDate) {
+  
+            const data = {
+              userId: "1",
+              title: added.title,
+              startTime: strTime,
+              endTime: endTime,
+            };
+            axios
+              .post(`http://localhost:8000/leave/addLeave`, data)
+              .then((response) => {
+                if (response.status == 200) {
+                  console.log(`${response.status}`);
+                  console.log(response.data.message);
+
+                  // this.setState({ isSuccess: false });
+
+                  // this.setState((prevState) => ({
+                  //   isSuccess: !prevState.isSuccess,
+                  // }));
+
+                  // this.setState(({ isSuccess }) => ({ isSuccess: !isSuccess }));
+
+                  // this.setState({
+                  //   isSuccess: (this.isSuccess = !this.isSuccess),
+                  // });
+
+                  console.log("2 " + this.state.isSuccess);
+                } else {
+                  window.alert("Somthing went wrong");
+                  console.log(`${response.status}`);
+                  console.log(response.data.message);
+                }
+              })
+              .catch((err) => {
+                console.log("Sever error");
                 console.log(err);
-              }
-            });
-        } else {
+              });
+          } else {
+          }
         }
       }
       if (changed) {
@@ -122,11 +127,23 @@ export default class Dashboard extends Component {
             ? { ...appointment, ...changed[appointment.id] }
             : appointment
         );
-        //window.alert("changed");
+        console.log(changed);
       }
       if (deleted !== undefined) {
         data = data.filter((appointment) => appointment.id !== deleted);
-        //window.alert("deleted");
+        //console.log(deleted);
+
+        axios
+          .delete(`http://localhost:8000/leave/deleteLeave/${deleted}`)
+          .then((response) => {
+            if (response.status == 200) {
+              console.log(response.data.message);
+            } else {
+              window.alert("Somthing went wrong");
+              console.log(response.data.message);
+            }
+          })
+          .catch((err) => console.log(err));
       }
       return { data };
     });
