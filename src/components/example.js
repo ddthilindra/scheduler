@@ -27,7 +27,7 @@ class Admin_Employer_Request_List extends Component {
     .delete(`${APIURL}/EMPTopList/DeleteTopList/${id}`)
     .then((res) => {
       console.log("res", res);
-      if (res.data.code === 200) {
+      if (res.data.code == 200) {
         console.log("res.data.code", res.data.code);
 
         toast.error("TopList is Deleted!");
@@ -56,7 +56,7 @@ class Admin_Employer_Request_List extends Component {
       .then((res) => {
         console.log(res.data);
         console.log(updateDetailsStatus);
-        if (res.data.code === 200) {
+        if (res.data.code == 200) {
           toast.success(res.data.message);
           window.setTimeout(function () {
                     window.location.reload();
