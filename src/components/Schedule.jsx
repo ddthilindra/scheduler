@@ -92,7 +92,7 @@ export default class Dashboard extends Component {
           res.data.success == true &&
           res.data.data.length > 0
         ) {
-          //console.log(res.data)
+          console.log(res.data)
           this.setState({ data: res.data.data });
         } else {
           console.log("bad request...");
@@ -127,27 +127,115 @@ export default class Dashboard extends Component {
         }
       }
       if (changed) {
+       
         data = data.map((appointment) =>
           changed[appointment.id]
             ? { ...appointment, ...changed[appointment.id] }
             : appointment
         );
-        const strTime = date.format(
-          changed[Object.keys(changed)].startDate,
-          "YYYY-MM-DD hh-mm-ss"
-        );
-        const endTime = date.format(
-          changed[Object.keys(changed)].endDate,
-          "YYYY-MM-DD hh-mm-ss"
-        );
-
-        const data2 = {
-          id: [Object.keys(changed)],
-          title: changed[Object.keys(changed)].title,
-          startTime: strTime,
-          endTime: endTime,
-        };
-        this.update(data2);
+        var changeSize = Object.keys(changed[Object.keys(changed)]).length;
+        
+        if(changeSize==3){
+          console.log("3")
+          const strTime = date.format(
+            changed[Object.keys(changed)].startDate,
+            "YYYY-MM-DD hh-mm-ss"
+          );
+          const endTime = date.format(
+            changed[Object.keys(changed)].endDate,
+            "YYYY-MM-DD hh-mm-ss"
+          );
+  
+          const data2 = {
+            id: [Object.keys(changed)],
+            title: changed[Object.keys(changed)].title,
+            startTime: strTime,
+            endTime: endTime,
+          };
+          this.update(data2);
+        }else if(changeSize==2){
+          console.log("2")
+          if(changed[Object.keys(changed)].title && changed[Object.keys(changed)].startDate){
+            console.log("t s")
+            const strTime = date.format(
+              changed[Object.keys(changed)].startDate,
+              "YYYY-MM-DD hh-mm-ss"
+            );
+            console.log("S "+strTime)
+            const data2 = {
+              id: [Object.keys(changed)],
+              title: changed[Object.keys(changed)].title,
+              startTime: strTime,
+            };
+            this.update(data2);
+          }
+          if(changed[Object.keys(changed)].title && changed[Object.keys(changed)].endDate){
+            console.log("t e")
+            const endTime = date.format(
+              changed[Object.keys(changed)].endDate,
+              "YYYY-MM-DD hh-mm-ss"
+            );
+            const data2 = {
+              id: [Object.keys(changed)],
+              title: changed[Object.keys(changed)].title,
+              endTime: endTime,
+            };
+            this.update(data2);
+          }
+          if(changed[Object.keys(changed)].startDate && changed[Object.keys(changed)].endDate){
+            console.log("s e")
+            const strTime = date.format(
+              changed[Object.keys(changed)].startDate,
+              "YYYY-MM-DD hh-mm-ss"
+            );
+            const endTime = date.format(
+              changed[Object.keys(changed)].endDate,
+              "YYYY-MM-DD hh-mm-ss"
+            );
+            const data2 = {
+              id: [Object.keys(changed)],
+              startTime: strTime,
+              endTime: endTime,
+            };
+            this.update(data2);
+          }
+        }else{
+          console.log("1")
+          if(changed[Object.keys(changed)].title ){
+            console.log("t")
+            
+            const data2 = {
+              id: [Object.keys(changed)],    
+              title: changed[Object.keys(changed)].title,      
+            };
+            this.update(data2);
+          }
+          if(changed[Object.keys(changed)].startDate ){
+            console.log("s")
+            const strTime = date.format(
+              changed[Object.keys(changed)].startDate,
+              "YYYY-MM-DD hh-mm-ss"
+            );
+            const data2 = {
+              id: [Object.keys(changed)],
+              startTime: strTime,              
+            };
+            this.update(data2);
+          }
+          if(changed[Object.keys(changed)].endDate ){
+            console.log("e")
+            const endTime = date.format(
+              changed[Object.keys(changed)].endDate,
+              "YYYY-MM-DD hh-mm-ss"
+            );
+            const data2 = {
+              id: [Object.keys(changed)],
+              endTime: endTime,              
+            };
+            this.update(data2);
+          }
+        }
+        
       }
       if (deleted !== undefined) {
         data = data.filter((appointment) => appointment.id !== deleted);
